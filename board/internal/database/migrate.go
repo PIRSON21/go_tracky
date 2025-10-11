@@ -8,7 +8,7 @@ import (
 )
 
 type Migrate interface {
-	Migration(string, *zap.Logger)
+	Migration(string)
 }
 
 type MigrateService struct {
