@@ -16,6 +16,7 @@ type MigrateService struct {
 }
 
 func (m *MigrateService) Migration(connStr string) {
+	m.Logger.Info("Запуск миграции.")
 	pg, err := sql.Open("pgx", connStr)
 	if err != nil {
 		m.Logger.Error("Не удалось подключиться к базе данных: %v\n", zap.Error(err))
@@ -27,5 +28,7 @@ func (m *MigrateService) Migration(connStr string) {
 		m.Logger.Error("Не удалось применить миграцию: %v\n", zap.Error(err))
 		panic(err)
 	}
+
+	m.Logger.Info("Миграция прошла успешно.")
 	return
 }
