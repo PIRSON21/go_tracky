@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/ChanKachan/go_tracky/config"
+	"github.com/ChanKachan/go_tracky/internal/database"
+	"github.com/ChanKachan/go_tracky/internal/handlers"
 	"github.com/gin-gonic/gin"
-	"go_tracky/board/config"
-	"go_tracky/board/internal/database"
 	"os"
 )
 
@@ -27,5 +28,8 @@ func main() {
 	defer config.Logger.Sync()
 
 	r := gin.Default()
+
+	r.GET("/api/board/:id", handlers.GetBoardInfoById)
+
 	r.Run(":8080")
 }
