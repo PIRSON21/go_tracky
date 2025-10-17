@@ -29,7 +29,8 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/api/board/:id", handlers.GetBoardInfoById)
+	r.GET("/api/board/:id", handlers.GetBoardInfoById(logger, dbpool))
+	r.POST("/api/create_board", handlers.PostBoard(logger, dbpool))
 
 	r.Run(":8080")
 }

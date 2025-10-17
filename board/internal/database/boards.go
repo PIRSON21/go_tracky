@@ -13,7 +13,7 @@ type GetBoardRequests interface {
 }
 
 type PostBoardRequests interface {
-	CreateBoard(id string)
+	CreateBoard(board *models.Board) error
 }
 
 type PutBoardRequests interface {
@@ -29,6 +29,15 @@ type BoardServise struct {
 	Db     *pgxpool.Pool
 }
 
+// createId генерирует id с типом uuid
+func createId() uuid.UUID {
+	return uuid.New()
+}
+
+// GetBoardInfo получаете информацию по id доски.
+
+// Если доска не найдена, то вернется структура errorResponse, с номером ошибки, сообщением и кодом ошибки
+// Если доска найдена, то возращает всю информацию о доске.
 func (b BoardServise) GetBoardInfo(id uuid.UUID) (models.Board, error) {
 	b.Logger.Info("Отправляем запрос на информацию о доске", zap.String("id", id.String()))
 
@@ -45,5 +54,29 @@ func (b BoardServise) GetBoardInfo(id uuid.UUID) (models.Board, error) {
 		return models.Board{}, err
 	}
 
+	b.Logger.Info("Запрос на поиск успешно выполнен", zap.String("id", id.String()))
+
 	return models.Board{id, user_id, name, access, color}, nil
+}
+
+// CreateBoard добавляет доску в базу данных.
+
+// Если данные некорректные, то вернется ошибка добавления доски.
+// Если по какой-то причине нельзя добавить данные в базу, то вернется ошибка добавления доски.
+func (b BoardServise) CreateBoard(board *models.Board) error {
+	b.Logger.Info("Отправляем запрос на создание доски")
+
+	board.Id = createId()
+
+	_, err := b.Db.Exec(context.Background(),
+		`INSERT INTO boards (id, user_id, name, access, color) VALUES ($1, $2, $3, $4, $5)`,
+		board.Id, board.User_id, board.Name_board, board.Access, board.Color,
+	)
+	if err != nil {
+		b.Logger.Error("Error adding board", zap.String("id", board.Id.String()))
+		return err
+	}
+
+	b.Logger.Info("Добавление успешно выполнено", zap.String("id", board.Id.String()))
+	return nil
 }
